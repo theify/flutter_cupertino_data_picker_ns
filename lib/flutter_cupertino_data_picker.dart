@@ -56,7 +56,8 @@ class DataPicker {
           cancelTextStyle: cancelTextStyle,
           itemTextStyle: itemTextStyle,
           theme: Theme.of(context),
-          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 }
@@ -119,12 +120,14 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
   @override
   AnimationController createAnimationController() {
     assert(_animationController == null);
-    _animationController = BottomSheet.createAnimationController(navigator!.overlay!);
+    _animationController =
+        BottomSheet.createAnimationController(navigator!.overlay!);
     return _animationController!;
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     Widget bottomSheet = new MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -193,7 +196,8 @@ class _DataPickerComponent extends StatefulWidget {
   final TextStyle? itemTextStyle;
 
   @override
-  State<StatefulWidget> createState() => _DatePickerState(this.initialData ?? 0);
+  State<StatefulWidget> createState() =>
+      _DatePickerState(this.initialData ?? 0);
 }
 
 class _DatePickerState extends State<_DataPickerComponent> {
@@ -204,7 +208,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
     if (this._initialIndex < 0) {
       this._initialIndex = 0;
     }
-    dataScrollCtrl = new FixedExtentScrollController(initialItem: _initialIndex);
+    dataScrollCtrl =
+        new FixedExtentScrollController(initialItem: _initialIndex);
   }
 
   @override
@@ -215,7 +220,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
         builder: (BuildContext context, Widget? child) {
           return new ClipRect(
             child: new CustomSingleChildLayout(
-              delegate: new _BottomPickerLayout(widget.route.animation!.value, showTitleActions: widget.route.showTitleActions ?? true),
+              delegate: new _BottomPickerLayout(widget.route.animation!.value,
+                  showTitleActions: widget.route.showTitleActions ?? true),
               child: new GestureDetector(
                 child: Material(
                   color: Colors.transparent,
@@ -262,7 +268,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
       child: Container(
           padding: EdgeInsets.all(8.0),
           height: _kDatePickerHeight,
-          decoration: BoxDecoration(color: widget.backgroundColor ?? Colors.white),
+          decoration:
+              BoxDecoration(color: widget.backgroundColor ?? Colors.white),
           child: CupertinoPicker(
             backgroundColor: widget.backgroundColor ?? Colors.white,
             scrollController: dataScrollCtrl,
@@ -279,7 +286,10 @@ class _DatePickerState extends State<_DataPickerComponent> {
                     new Expanded(
                         child: Text(
                       '${widget.options[index]}$suffixAppend',
-                      style: widget.itemTextStyle ?? TextStyle(color: Color(0xFF000046), fontSize: _kDatePickerFontSize),
+                      style: widget.itemTextStyle ??
+                          TextStyle(
+                              color: Color(0xFF000046),
+                              fontSize: _kDatePickerFontSize),
                       textAlign: TextAlign.center,
                       softWrap: false,
                       overflow: TextOverflow.fade,
@@ -349,7 +359,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
               ),
               onPressed: () {
                 if (widget.route.onConfirm != null) {
-                  widget.route.onConfirm!(_initialIndex, widget.options[_initialIndex]);
+                  widget.route.onConfirm!(
+                      _initialIndex, widget.options[_initialIndex]);
                 }
                 Navigator.pop(context);
               },
@@ -400,7 +411,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
 }
 
 class _BottomPickerLayout extends SingleChildLayoutDelegate {
-  _BottomPickerLayout(this.progress, {this.itemCount, required this.showTitleActions});
+  _BottomPickerLayout(this.progress,
+      {this.itemCount, required this.showTitleActions});
 
   final double progress;
   final int? itemCount;
@@ -413,7 +425,11 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
       maxHeight += _kDatePickerTitleHeight;
     }
 
-    return new BoxConstraints(minWidth: constraints.maxWidth, maxWidth: constraints.maxWidth, minHeight: 0.0, maxHeight: maxHeight);
+    return new BoxConstraints(
+        minWidth: constraints.maxWidth,
+        maxWidth: constraints.maxWidth,
+        minHeight: 0.0,
+        maxHeight: maxHeight);
   }
 
   @override
