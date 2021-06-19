@@ -6,7 +6,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-typedef DateChangedCallback(dynamic data);
+/// Pressed cancel callback.
+typedef DateVoidCallback();
+
+typedef DateChangedCallback(int index, dynamic data);
 
 const double _kDatePickerHeight = 210.0;
 const double _kDatePickerTitleHeight = 44.0;
@@ -17,28 +20,43 @@ class DataPicker {
   static void showDatePicker(
     BuildContext context, {
     bool showTitleActions: true,
-    @required List<dynamic> datas,
+    required List<dynamic> options,
     int selectedIndex: 0,
-    DateChangedCallback onChanged,
-    DateChangedCallback onConfirm,
+    DateChangedCallback? onChanged,
+    DateChangedCallback? onConfirm,
+    DateVoidCallback? onCancel,
     suffix: '',
     title: '',
+    String? confirm,
+    String? cancel,
     locale: 'zh',
+    Color? backgroundColor,
+    TextStyle? titleTextStyle,
+    TextStyle? confirmTextStyle,
+    TextStyle? cancelTextStyle,
+    TextStyle? itemTextStyle,
   }) {
     Navigator.push(
         context,
         new _DatePickerRoute(
           showTitleActions: showTitleActions,
           initialData: selectedIndex,
-          datas: datas,
+          options: options,
           onChanged: onChanged,
           onConfirm: onConfirm,
+          onCancel: onCancel,
           locale: locale,
           suffix: suffix,
           title: title,
-          theme: Theme.of(context, shadowThemeOnly: true),
-          barrierLabel:
-              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          confirm: confirm,
+          cancel: cancel,
+          backgroundColor: backgroundColor,
+          titleTextStyle: titleTextStyle,
+          confirmTextStyle: confirmTextStyle,
+          cancelTextStyle: cancelTextStyle,
+          itemTextStyle: itemTextStyle,
+          theme: Theme.of(context),
+          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 }
@@ -46,27 +64,43 @@ class DataPicker {
 class _DatePickerRoute<T> extends PopupRoute<T> {
   _DatePickerRoute({
     this.showTitleActions,
-    this.datas,
+    required this.options,
     this.initialData,
     this.onChanged,
     this.onConfirm,
+    this.onCancel,
     this.theme,
     this.barrierLabel,
     this.locale,
     this.suffix,
     this.title,
-    RouteSettings settings,
+    this.confirm,
+    this.cancel,
+    this.backgroundColor,
+    this.titleTextStyle,
+    this.confirmTextStyle,
+    this.cancelTextStyle,
+    this.itemTextStyle,
+    RouteSettings? settings,
   }) : super(settings: settings);
 
-  final List<dynamic> datas;
-  final bool showTitleActions;
-  final int initialData;
-  final DateChangedCallback onChanged;
-  final DateChangedCallback onConfirm;
-  final ThemeData theme;
-  final String locale;
-  final String suffix;
-  final String title;
+  final List<dynamic> options;
+  final bool? showTitleActions;
+  final int? initialData;
+  final DateChangedCallback? onChanged;
+  final DateChangedCallback? onConfirm;
+  final DateVoidCallback? onCancel;
+  final ThemeData? theme;
+  final String? locale;
+  final String? suffix;
+  final String? title;
+  final String? confirm;
+  final String? cancel;
+  final Color? backgroundColor;
+  final TextStyle? titleTextStyle;
+  final TextStyle? confirmTextStyle;
+  final TextStyle? cancelTextStyle;
+  final TextStyle? itemTextStyle;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 200);
@@ -75,39 +109,45 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
   bool get barrierDismissible => true;
 
   @override
-  final String barrierLabel;
+  final String? barrierLabel;
 
   @override
   Color get barrierColor => Colors.black54;
 
-  AnimationController _animationController;
+  AnimationController? _animationController;
 
   @override
   AnimationController createAnimationController() {
     assert(_animationController == null);
-    _animationController =
-        BottomSheet.createAnimationController(navigator.overlay);
-    return _animationController;
+    _animationController = BottomSheet.createAnimationController(navigator!.overlay!);
+    return _animationController!;
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     Widget bottomSheet = new MediaQuery.removePadding(
       context: context,
       removeTop: true,
       child: _DataPickerComponent(
         initialData: initialData,
-        datas: datas,
+        options: options,
         onChanged: onChanged,
+        onCancel: onCancel,
         locale: locale,
         suffix: suffix,
         title: title,
+        confirm: confirm,
+        cancel: cancel,
+        backgroundColor: backgroundColor,
+        titleTextStyle: titleTextStyle,
+        confirmTextStyle: confirmTextStyle,
+        cancelTextStyle: cancelTextStyle,
+        itemTextStyle: itemTextStyle,
         route: this,
       ),
     );
     if (theme != null) {
-      bottomSheet = new Theme(data: theme, child: bottomSheet);
+      bottomSheet = new Theme(data: theme!, child: bottomSheet);
     }
     return bottomSheet;
   }
@@ -115,53 +155,67 @@ class _DatePickerRoute<T> extends PopupRoute<T> {
 
 class _DataPickerComponent extends StatefulWidget {
   _DataPickerComponent({
-    Key key,
-    @required this.route,
+    Key? key,
+    required this.route,
     this.initialData: 0,
-    this.datas,
+    required this.options,
     this.onChanged,
+    this.onCancel,
     this.locale,
     this.suffix,
     this.title,
-  });
+    this.confirm,
+    this.cancel,
+    this.backgroundColor,
+    this.titleTextStyle,
+    this.confirmTextStyle,
+    this.cancelTextStyle,
+    this.itemTextStyle,
+  }) : super(key: key);
 
-  final DateChangedCallback onChanged;
-  final int initialData;
-  final List<dynamic> datas;
+  final DateChangedCallback? onChanged;
+  final DateVoidCallback? onCancel;
+  final int? initialData;
+  final List<dynamic> options;
 
   final _DatePickerRoute route;
 
-  final String locale;
-  final String suffix;
-  final String title;
+  final String? locale;
+  final String? suffix;
+  final String? title;
+  final String? confirm;
+  final String? cancel;
+
+  final Color? backgroundColor;
+  final TextStyle? titleTextStyle;
+  final TextStyle? confirmTextStyle;
+  final TextStyle? cancelTextStyle;
+  final TextStyle? itemTextStyle;
 
   @override
-  State<StatefulWidget> createState() => _DatePickerState(this.initialData);
+  State<StatefulWidget> createState() => _DatePickerState(this.initialData ?? 0);
 }
 
 class _DatePickerState extends State<_DataPickerComponent> {
   int _initialIndex;
-  int _selectedColorIndex = 0;
-  FixedExtentScrollController dataScrollCtrl;
+  late FixedExtentScrollController dataScrollCtrl;
 
   _DatePickerState(this._initialIndex) {
     if (this._initialIndex < 0) {
       this._initialIndex = 0;
     }
-    dataScrollCtrl =
-        new FixedExtentScrollController(initialItem: _selectedColorIndex);
+    dataScrollCtrl = new FixedExtentScrollController(initialItem: _initialIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     return new GestureDetector(
       child: new AnimatedBuilder(
-        animation: widget.route.animation,
-        builder: (BuildContext context, Widget child) {
+        animation: widget.route.animation!,
+        builder: (BuildContext context, Widget? child) {
           return new ClipRect(
             child: new CustomSingleChildLayout(
-              delegate: new _BottomPickerLayout(widget.route.animation.value,
-                  showTitleActions: widget.route.showTitleActions),
+              delegate: new _BottomPickerLayout(widget.route.animation!.value, showTitleActions: widget.route.showTitleActions ?? true),
               child: new GestureDetector(
                 child: Material(
                   color: Colors.transparent,
@@ -185,13 +239,13 @@ class _DatePickerState extends State<_DataPickerComponent> {
 
   void _notifyDateChanged() {
     if (widget.onChanged != null) {
-      widget.onChanged(widget.datas[_initialIndex]);
+      widget.onChanged?.call(_initialIndex, widget.options[_initialIndex]);
     }
   }
 
   Widget _renderPickerView() {
     Widget itemView = _renderItemView();
-    if (widget.route.showTitleActions) {
+    if (widget.route.showTitleActions ?? true) {
       return Column(
         children: <Widget>[
           _renderTitleActionsView(),
@@ -208,15 +262,15 @@ class _DatePickerState extends State<_DataPickerComponent> {
       child: Container(
           padding: EdgeInsets.all(8.0),
           height: _kDatePickerHeight,
-          decoration: BoxDecoration(color: Colors.white),
+          decoration: BoxDecoration(color: widget.backgroundColor ?? Colors.white),
           child: CupertinoPicker(
-            backgroundColor: Colors.white,
+            backgroundColor: widget.backgroundColor ?? Colors.white,
             scrollController: dataScrollCtrl,
             itemExtent: _kDatePickerItemHeight,
             onSelectedItemChanged: (int index) {
               _setData(index);
             },
-            children: List.generate(widget.datas.length, (int index) {
+            children: List.generate(widget.options.length, (int index) {
               return Container(
                 height: _kDatePickerItemHeight,
                 alignment: Alignment.center,
@@ -224,10 +278,8 @@ class _DatePickerState extends State<_DataPickerComponent> {
                   children: <Widget>[
                     new Expanded(
                         child: Text(
-                      '${widget.datas[index]}$suffixAppend',
-                      style: TextStyle(
-                          color: Color(0xFF000046),
-                          fontSize: _kDatePickerFontSize),
+                      '${widget.options[index]}$suffixAppend',
+                      style: widget.itemTextStyle ?? TextStyle(color: Color(0xFF000046), fontSize: _kDatePickerFontSize),
                       textAlign: TextAlign.center,
                       softWrap: false,
                       overflow: TextOverflow.fade,
@@ -241,7 +293,7 @@ class _DatePickerState extends State<_DataPickerComponent> {
   }
 
   Widget _renderItemView() {
-    return _renderDataPickerComponent(widget.suffix);
+    return _renderDataPickerComponent(widget.suffix ?? '');
   }
 
   // Title View
@@ -251,7 +303,7 @@ class _DatePickerState extends State<_DataPickerComponent> {
 
     return Container(
       height: _kDatePickerTitleHeight,
-      decoration: BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(color: widget.backgroundColor ?? Colors.white),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -259,39 +311,45 @@ class _DatePickerState extends State<_DataPickerComponent> {
             height: _kDatePickerTitleHeight,
             child: FlatButton(
               child: Text(
-                '$cancel',
-                style: TextStyle(
-                  color: Theme.of(context).unselectedWidgetColor,
-                  fontSize: 16.0,
-                ),
+                widget.cancel ?? '$cancel',
+                style: widget.cancelTextStyle ??
+                    TextStyle(
+                      color: Theme.of(context).unselectedWidgetColor,
+                      fontSize: 16.0,
+                    ),
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                widget.onCancel?.call();
+                Navigator.pop(context);
+              },
             ),
           ),
           Container(
             alignment: Alignment.center,
             height: _kDatePickerTitleHeight,
             child: Text(
-              widget.title,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16.0,
-              ),
+              widget.title ?? '',
+              style: widget.titleTextStyle ??
+                  TextStyle(
+                    color: Colors.black,
+                    fontSize: 16.0,
+                  ),
             ),
           ),
           Container(
             height: _kDatePickerTitleHeight,
             child: FlatButton(
               child: Text(
-                '$done',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 16.0,
-                ),
+                widget.confirm ?? '$done',
+                style: widget.confirmTextStyle ??
+                    TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16.0,
+                    ),
               ),
               onPressed: () {
                 if (widget.route.onConfirm != null) {
-                  widget.route.onConfirm(widget.datas[_initialIndex]);
+                  widget.route.onConfirm!(_initialIndex, widget.options[_initialIndex]);
                 }
                 Navigator.pop(context);
               },
@@ -307,20 +365,17 @@ class _DatePickerState extends State<_DataPickerComponent> {
       return 'Done';
     }
 
-    String lang = widget.locale.split('_').first;
+    String lang = widget.locale!.split('_').first;
 
     switch (lang) {
       case 'en':
         return 'Done';
-        break;
 
       case 'zh':
         return '确定';
-        break;
 
       default:
         return '';
-        break;
     }
   }
 
@@ -329,29 +384,26 @@ class _DatePickerState extends State<_DataPickerComponent> {
       return 'Cancel';
     }
 
-    String lang = widget.locale.split('_').first;
+    String lang = widget.locale!.split('_').first;
 
     switch (lang) {
       case 'en':
         return 'Cancel';
-        break;
 
       case 'zh':
         return '取消';
-        break;
 
       default:
         return '';
-        break;
     }
   }
 }
 
 class _BottomPickerLayout extends SingleChildLayoutDelegate {
-  _BottomPickerLayout(this.progress, {this.itemCount, this.showTitleActions});
+  _BottomPickerLayout(this.progress, {this.itemCount, required this.showTitleActions});
 
   final double progress;
-  final int itemCount;
+  final int? itemCount;
   final bool showTitleActions;
 
   @override
@@ -361,11 +413,7 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
       maxHeight += _kDatePickerTitleHeight;
     }
 
-    return new BoxConstraints(
-        minWidth: constraints.maxWidth,
-        maxWidth: constraints.maxWidth,
-        minHeight: 0.0,
-        maxHeight: maxHeight);
+    return new BoxConstraints(minWidth: constraints.maxWidth, maxWidth: constraints.maxWidth, minHeight: 0.0, maxHeight: maxHeight);
   }
 
   @override

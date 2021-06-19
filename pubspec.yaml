@@ -1,11 +1,11 @@
-name: flutter_cupertino_data_picker
+name: flutter_cupertino_data_picker_ns
 description: Cupertino styled date picker.flutter cupertino data_picker(iOS Cupertino styled).
 version: 0.8.6
 author: SimonChen<admin@ithome.me>
 homepage: https://github.com/cikichen/flutter_cupertino_data_picker
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
